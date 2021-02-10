@@ -10,8 +10,8 @@ jobs:
       - run: 
           name: retrieving  old workflow id
           command: |
-            export OldWorkflowID=$(curl -H "token: ee7cabe0-f97f-4a0e-9507-89961a8b4c96" --request GET https://api.memstash.io/values/${CIRCLE_WORKFLOW_ID})
-            echo Workflow id old: ${OldWorkflowID}
+            curl -H "token: ee7cabe0-f97f-4a0e-9507-89961a8b4c96" --request GET https://api.memstash.io/values/${CIRCLE_WORKFLOW_ID}
+
 
       - run: 
           name: pushing new id to memstash
@@ -26,4 +26,4 @@ workflows:
     jobs:
     - testing
 
-## #
+## ##
