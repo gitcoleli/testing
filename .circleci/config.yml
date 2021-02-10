@@ -17,39 +17,14 @@ jobs:
                   fingerprints:
                       - "d1:1d:fe:4c:a7:92:72:1f:97:5f:8b:b0:07:db:f9:09"
             - run:
-                  name: Ensure back-end infrastructure exists
+                  name: Deploying the Backend via CF
                   command: |
                       aws cloudformation deploy --template-file .circleci/files/backend.yml --tags project=udapeople --stack-name "backend-stack-${CIRCLE_WORKFLOW_ID}" --parameter-overrides ID=${CIRCLE_WORKFLOW_ID}
-                      curl -H "token: ee7cabe0-f97f-4a0e-9507-89961a8b4c96" --request GET https://api.memstash.io/values/fruits >> .circleci/ansible/id.txt
-                      cat .circleci/ansible/id.txt
 
-            - persist_to_workspace:
-                  root: ~/
-                  paths:
-                      - project/.circleci/ansible/id.txt
-
-            # - run:
-            #       name: Ensure front-end infrastructure exist
-            #       command: |
-            #           aws cloudformation deploy \
-            #               --template-file .circleci/files/frontend.yml \
-            #               --tags project=udapeople \
-            #               --stack-name "frontend-stack-${CIRCLE_WORKFLOW_ID}" \
-            #               --parameter-overrides ID=${CIRCLE_WORKFLOW_ID}
-
-  verifying:
-      docker:
-        - image: circleci/node:13.8.0
-      steps:
-      # Checkout code from git
-      - checkout
-      - run: 
-          name: install curl
-          command: |
-            sudo apt-get update
-            sudo apt install curl
-            cat .circleci/ansible/inventory.txt
-            cat .circleci/ansible/id.txt
+            - run:
+                  name: Deploying the Frontend via CF
+                  command: |
+                      aws cloudformation deploy --template-file .circleci/files/frontend.yml --tags project=udapeople --stack-name "frontend-stack-${CIRCLE_WORKFLOW_ID}" --parameter-overrides ID=${CIRCLE_WORKFLOW_ID}
 
 
   testing:
@@ -59,35 +34,31 @@ jobs:
       # Checkout code from git
       - checkout
       - run: 
-          name: install curl
+          name: install applications 
           command: |
             sudo apt-get update
             sudo apt install curl
             sudo apt install awscli
-            cat .circleci/ansible/id.txt
+
 
       - run: 
-          name: fingers crossed 
+          name: Deleting old Stacks 
           command: |
-            cat .circleci/ansible/id.txt
             export AWS_PAGER=""
-            export oldid=$(curl -H "token: ee7cabe0-f97f-4a0e-9507-89961a8b4c96" --request GET https://api.memstash.io/values/fruits --ssl-no-revoke) 
-            export stacks=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" --stack-status-filter CREATE_COMPLETE --no-paginate --output text))
-            echo stacks ${stacks}
+            export oldid=$(curl -H "token: ee7cabe0-f97f-4a0e-9507-89961a8b4c96" --request GET https://api.memstash.io/values/fruits ) 
             echo  old id ${oldid}
-            echo  stacks1 ${stacks[@]}
-            echo new id ${CIRCLE_WORKFLOW_ID}
-            if [[ ${stacks[@]} =~ ${oldid} ]]
+            echo  new id ${CIRCLE_WORKFLOW_ID}
+            ## ## ##
+            ## ## ##
+            if  [ "${CIRCLE_WORKFLOW_ID}" -ne "${oldid}" ]
             then
             aws cloudformation list-stacks --query "StackSummaries[*].StackName" --stack-status-filter CREATE_COMPLETE --no-paginate --output text
             echo "the ID's are different lets delete"
             aws cloudformation delete-stack --stack-name backend-stack-${oldid}
             aws cloudformation delete-stack --stack-name frontend-stack-${oldid}
-
             else 
-            echo " nothing to do here carry on"
+            echo "#### nothing to do here move on ####"
             fi 
-
 
 
       - run: 
@@ -95,13 +66,6 @@ jobs:
           command: |
             echo ${CIRCLE_WORKFLOW_ID}
             curl -H "Content-Type: text/plain" -H "token: ee7cabe0-f97f-4a0e-9507-89961a8b4c96" --request PUT --data "${CIRCLE_WORKFLOW_ID}" https://api.memstash.io/values/fruits 
-            cat .circleci/ansible/id.txt
-
-      - persist_to_workspace:
-                  root: ~/
-                  paths:
-                      - project/.circleci/ansible/id.txt
-
 
 
 workflows:
