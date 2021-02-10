@@ -21,14 +21,14 @@ jobs:
                   command: |
                       aws cloudformation deploy --template-file .circleci/files/backend.yml --tags project=udapeople --stack-name "backend-stack-${CIRCLE_WORKFLOW_ID}" --parameter-overrides ID=${CIRCLE_WORKFLOW_ID}
 
-            - run:
-                  name: Ensure front-end infrastructure exist
-                  command: |
-                      aws cloudformation deploy \
-                          --template-file .circleci/files/frontend.yml \
-                          --tags project=udapeople \
-                          --stack-name "frontend-stack-${CIRCLE_WORKFLOW_ID}" \
-                          --parameter-overrides ID=${CIRCLE_WORKFLOW_ID}
+            # - run:
+            #       name: Ensure front-end infrastructure exist
+            #       command: |
+            #           aws cloudformation deploy \
+            #               --template-file .circleci/files/frontend.yml \
+            #               --tags project=udapeople \
+            #               --stack-name "frontend-stack-${CIRCLE_WORKFLOW_ID}" \
+            #               --parameter-overrides ID=${CIRCLE_WORKFLOW_ID}
 
 
 
@@ -49,19 +49,18 @@ jobs:
       - run: 
           name: fingers crossed 
           command: |
-            export oldid=$(curl -H "token: ee7cabe0-f97f-4a0e-9507-89961a8b4c96" --request GET https://api.memstash.io/values/fruit --ssl-no-revoke)
+            export oldid=$(curl -H "token: ee7cabe0-f97f-4a0e-9507-89961a8b4c96" --request GET https://api.memstash.io/values/fruits --ssl-no-revoke)
             echo  old id ${oldid}
             echo new id ${CIRCLE_WORKFLOW_ID}
-            if [[ ${CIRCLE_WORKFLOW_ID} = ${oldid} ]]
+            if [ -n "${oldid}" ]
             then
-            echo " the ID's are the same do nothing "
-            else 
             echo "the ID's are different lets delete"
             aws cloudformation list-stacks --query "StackSummaries[*].StackName" --stack-status-filter CREATE_COMPLETE --no-paginate --output text
             aws cloudformation delete-stack --stack-name backend-stack-${oldid}
-            aws s3 rm "s3://udapeople-${oldid}" --recursive
-            aws cloudformation delete-stack --stack-name frontend-stack-${oldid}
             aws cloudformation list-stacks --query "StackSummaries[*].StackName" --stack-status-filter CREATE_COMPLETE --no-paginate --output text
+            else
+            echo " the ID's are the same do nothing "
+            
             fi 
 
 
@@ -70,7 +69,7 @@ jobs:
           name: pushing new id to memstash
           command: |
             echo ${CIRCLE_WORKFLOW_ID}
-            curl -H "Content-Type: text/plain" -H "token: ee7cabe0-f97f-4a0e-9507-89961a8b4c96" --request PUT --data "${CIRCLE_WORKFLOW_ID}" https://api.memstash.io/values/fruit --ssl-no-revoke
+            curl -H "Content-Type: text/plain" -H "token: ee7cabe0-f97f-4a0e-9507-89961a8b4c96" --request PUT --data "${CIRCLE_WORKFLOW_ID}" https://api.memstash.io/values/fruits --ssl-no-revoke
 
 
 
