@@ -20,14 +20,14 @@ jobs:
       - run: 
           name: retrieving  old workflow id
           command: |
-            curl -H "token: ee7cabe0-f97f-4a0e-9507-89961a8b4c96" --request GET https://api.memstash.io/values/fruit
+            curl -H "token: ee7cabe0-f97f-4a0e-9507-89961a8b4c96" --request GET https://api.memstash.io/values/fruit --ssl-no-revoke
 
 
       - run: 
           name: pushing new id to memstash
           command: |
             echo ${CIRCLE_WORKFLOW_ID}
-            curl -H "Content-Type: text/plain" -H "token: ee7cabe0-f97f-4a0e-9507-89961a8b4c96" --request PUT --data "orange" https://api.memstash.io/values/fruit --ssl-no-revoke
+            curl -H "Content-Type: text/plain" -H "token: ee7cabe0-f97f-4a0e-9507-89961a8b4c96" --request PUT --data "${CIRCLE_WORKFLOW_ID}" https://api.memstash.io/values/fruit --ssl-no-revoke
 
 
 
