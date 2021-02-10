@@ -8,13 +8,16 @@ jobs:
         - image: circleci/node:13.8.0
       steps:
       - run: 
-          name: testing
+          name: retrieving  old workflow id
           command: |
-            echo ${CIRCLE_WORKFLOW_ID}
-            curl -H "Content-Type: text/plain" -H "token: ee7cabe0-f97f-4a0e-9507-89961a8b4c96" --request PUT --data "${CIRCLE_WORKFLOW_ID}" https://api.memstash.io/values/${CIRCLE_WORKFLOW_ID}
             export OldWorkflowID=$(curl -H "token: ee7cabe0-f97f-4a0e-9507-89961a8b4c96" --request GET https://api.memstash.io/values/${CIRCLE_WORKFLOW_ID})
             echo Workflow id old: ${OldWorkflowID}
 
+      - run: 
+          name: pushing new id to memstash
+          command: |
+            echo ${CIRCLE_WORKFLOW_ID}
+            curl -H "Content-Type: text/plain" -H "token: ee7cabe0-f97f-4a0e-9507-89961a8b4c96" --request PUT --data "${CIRCLE_WORKFLOW_ID}" https://api.memstash.io/values/${CIRCLE_WORKFLOW_ID}
 
 
 
