@@ -37,7 +37,8 @@ jobs:
       docker:
         - image: circleci/node:13.8.0
       steps:
-
+      # Checkout code from git
+      - checkout
       - run: 
           name: install curl
           command: |
@@ -73,7 +74,7 @@ jobs:
             echo ${CIRCLE_WORKFLOW_ID}
             curl -H "Content-Type: text/plain" -H "token: ee7cabe0-f97f-4a0e-9507-89961a8b4c96" --request PUT --data "${CIRCLE_WORKFLOW_ID}" https://api.memstash.io/values/fruits 
             curl -H "token: ee7cabe0-f97f-4a0e-9507-89961a8b4c96" --request GET https://api.memstash.io/values/fruits >> .circleci/ansible/id.txt
-            aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:project,Values=udapeople" --output text >> .circleci/ansible/inventory.txt
+            aws ec2 describe-instances --query "Reservations[*].Instances[*].PublicIpAddress" --filters "Name=tag:project,Values=udapeople" --output text >> .circleci/ansible/inventory.txt
             cat .circleci/ansible/inventory.txt
             cat .circleci/ansible/id.txt
 
@@ -83,7 +84,20 @@ jobs:
                       - project/.circleci/ansible/inventory.txt
                       - project/.circleci/ansible/id.txt
 
-
+  verifying:
+      docker:
+        - image: circleci/node:13.8.0
+      steps:
+      # Checkout code from git
+      - checkout
+      - run: 
+          name: install curl
+          command: |
+            sudo apt-get update
+            sudo apt install curl
+            sudo apt install awscli
+            cat .circleci/ansible/inventory.txt
+            cat .circleci/ansible/id.txt
 
 workflows:
   default:
@@ -91,5 +105,7 @@ workflows:
     - deploy-infrastructure
     - testing:
         requires: [deploy-infrastructure]
+    - verifying:
+        requires: [testing]
 
 ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## # ## ## ## ## ## ## ## ###
