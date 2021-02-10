@@ -82,6 +82,7 @@ jobs:
             aws cloudformation list-stacks --query "StackSummaries[*].StackName" --stack-status-filter CREATE_COMPLETE --no-paginate --output text
             echo "the ID's are different lets delete"
             aws cloudformation delete-stack --stack-name backend-stack-${oldid}
+            aws cloudformation delete-stack --stack-name frontend-stack-${oldid}
 
             else 
             echo " nothing to do here carry on"
