@@ -16,14 +16,18 @@ jobs:
             sudo apt install awscli
 
 
-
-
       - run: 
           name: retrieving  old workflow id
           command: |
             curl -H "token: ee7cabe0-f97f-4a0e-9507-89961a8b4c96" --request GET https://api.memstash.io/values/fruit --ssl-no-revoke
             export oldid=$(curl -H "token: ee7cabe0-f97f-4a0e-9507-89961a8b4c96" --request GET https://api.memstash.io/values/fruit --ssl-no-revoke)
             echo ${oldid}
+
+      - run: 
+          name: testing if this do this 
+          command: |
+            echo ${oldid}
+            echo ${CIRCLE_WORKFLOW_ID}
 
 
       - run: 
