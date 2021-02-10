@@ -75,6 +75,7 @@ jobs:
             export stacks=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" --stack-status-filter CREATE_COMPLETE --no-paginate --output text))
             echo stacks ${stacks}
             echo  old id ${oldid}
+            echo  stacks1 ${stacks[@]}
             echo new id ${CIRCLE_WORKFLOW_ID}
             if [[ ${stacks[@]} =~ ${oldid} ]]
             then
