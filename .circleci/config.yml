@@ -21,6 +21,18 @@ jobs:
                   command: |
                       aws cloudformation deploy --template-file .circleci/files/backend.yml --tags project=udapeople --stack-name "backend-stack-${CIRCLE_WORKFLOW_ID}" --parameter-overrides ID=${CIRCLE_WORKFLOW_ID}
 
+            - run:
+                  name: Ensure front-end infrastructure exist
+                  command: |
+                      aws cloudformation deploy \
+                          --template-file .circleci/files/frontend.yml \
+                          --tags project=udapeople \
+                          --stack-name "frontend-stack-${CIRCLE_WORKFLOW_ID}" \
+                          --parameter-overrides ID=${CIRCLE_WORKFLOW_ID}
+
+
+
+
   testing:
       docker:
         - image: circleci/node:13.8.0
@@ -47,6 +59,7 @@ jobs:
             echo "the ID's are different lets delete"
             aws cloudformation list-stacks --query "StackSummaries[*].StackName" --stack-status-filter CREATE_COMPLETE --no-paginate --output text
             aws cloudformation delete-stack --stack-name backend-stack-${oldid}
+            aws cloudformation delete-stack --stack-name frontend-stack-${oldid}
             aws cloudformation list-stacks --query "StackSummaries[*].StackName" --stack-status-filter CREATE_COMPLETE --no-paginate --output text
             fi 
 
