@@ -27,7 +27,7 @@ jobs:
             echo " the ID's are the same do nothing "
             else 
             echo "the ID's are different lets delete"
-            aws --version
+            aws cloudformation list-stacks
             fi 
 
       # - run: 
