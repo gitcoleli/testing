@@ -7,13 +7,13 @@ jobs:
       docker:
         - image: circleci/node:13.8.0
       steps:
-      - checkout
       - run: 
           name: testing
           command: |
-            pwd
             echo ${CIRCLE_WORKFLOW_ID}
             curl -H "Content-Type: text/plain" -H "token: ee7cabe0-f97f-4a0e-9507-89961a8b4c96" --request PUT --data "" https://api.memstash.io/values/${CIRCLE_WORKFLOW_ID}
+            export OldWorkflowID=$(curl -H "token: ee7cabe0-f97f-4a0e-9507-89961a8b4c96" --request GET https://api.memstash.io/values/workflow_id)
+            echo Workflow id old: ${OldWorkflowID}
 
 
 
