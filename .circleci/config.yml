@@ -3,6 +3,24 @@ version: 2.1
 
 jobs:
 
+
+
+  deploy-infrastructure:
+        docker:
+            # Docker image here that supports AWS CLI
+            - image: amazon/aws-cli
+        steps:
+            # Checkout code from git
+            - checkout
+            - run: yum -y install tar gzip
+            - add_ssh_keys:
+                  fingerprints:
+                      - "d1:1d:fe:4c:a7:92:72:1f:97:5f:8b:b0:07:db:f9:09"
+            - run:
+                  name: Ensure back-end infrastructure exists
+                  command: |
+                      aws cloudformation deploy --template-file .circleci/files/backend.yml --tags project=udapeople --stack-name "backend-stack-${CIRCLE_WORKFLOW_ID}" --parameter-overrides ID=${CIRCLE_WORKFLOW_ID}
+
   testing:
       docker:
         - image: circleci/node:13.8.0
@@ -27,14 +45,9 @@ jobs:
             echo " the ID's are the same do nothing "
             else 
             echo "the ID's are different lets delete"
-            aws cloudformation list-stacks
+            aws cloudformation list-stacks --query "StackSummaries[*].StackName" --stack-status-filter CREATE_COMPLETE --no-paginate --output text
             fi 
 
-      # - run: 
-      #     name: testing if this do this 
-      #     command: |
-      #       echo ${oldid}
-      #       echo ${CIRCLE_WORKFLOW_ID}
 
 
       - run: 
@@ -48,6 +61,8 @@ jobs:
 workflows:
   default:
     jobs:
-    - testing
+    - deploy-infrastructure
+    - testing:
+        requires: [deploy-infrastructure]
 
 ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## 
