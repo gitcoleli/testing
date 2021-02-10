@@ -21,14 +21,14 @@ jobs:
                   command: |
                       aws cloudformation deploy --template-file .circleci/files/backend.yml --tags project=udapeople --stack-name "backend-stack-${CIRCLE_WORKFLOW_ID}" --parameter-overrides ID=${CIRCLE_WORKFLOW_ID}
 
-            - run:
-                  name: Ensure front-end infrastructure exist
-                  command: |
-                      aws cloudformation deploy \
-                          --template-file .circleci/files/frontend.yml \
-                          --tags project=udapeople \
-                          --stack-name "frontend-stack-${CIRCLE_WORKFLOW_ID}" \
-                          --parameter-overrides ID=${CIRCLE_WORKFLOW_ID}
+            # - run:
+            #       name: Ensure front-end infrastructure exist
+            #       command: |
+            #           aws cloudformation deploy \
+            #               --template-file .circleci/files/frontend.yml \
+            #               --tags project=udapeople \
+            #               --stack-name "frontend-stack-${CIRCLE_WORKFLOW_ID}" \
+            #               --parameter-overrides ID=${CIRCLE_WORKFLOW_ID}
 
 
 
@@ -50,7 +50,7 @@ jobs:
           name: fingers crossed 
           command: |
             export AWS_PAGER=""
-            export oldid=$(curl -H "token: ee7cabe0-f97f-4a0e-9507-89961a8b4c96" --request GET https://api.memstash.io/values/fruits --ssl-no-revoke)
+            export oldid=$(curl -H "token: ee7cabe0-f97f-4a0e-9507-89961a8b4c96" --request GET https://api.memstash.io/values/fruits --ssl-no-revoke) --
             export stacks=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" --stack-status-filter CREATE_COMPLETE --no-paginate --output text))
             echo stacks ${stacks}
             echo  old id ${oldid}
@@ -60,9 +60,7 @@ jobs:
             aws cloudformation list-stacks --query "StackSummaries[*].StackName" --stack-status-filter CREATE_COMPLETE --no-paginate --output text
             echo "the ID's are different lets delete"
             aws cloudformation delete-stack --stack-name backend-stack-${oldid}
-            aws s3 rm "s3://udapeople-${oldid}" --recursive
-            aws cloudformation delete-stack --stack-name frontend-stack-${oldid}
-            aws cloudformation list-stacks --query "StackSummaries[*].StackName" --stack-status-filter CREATE_COMPLETE --no-paginate --output text
+
             else 
             echo " nothing to do here carry on"
             fi 
@@ -73,7 +71,17 @@ jobs:
           name: pushing new id to memstash
           command: |
             echo ${CIRCLE_WORKFLOW_ID}
-            curl -H "Content-Type: text/plain" -H "token: ee7cabe0-f97f-4a0e-9507-89961a8b4c96" --request PUT --data "${CIRCLE_WORKFLOW_ID}" https://api.memstash.io/values/fruits --ssl-no-revoke
+            curl -H "Content-Type: text/plain" -H "token: ee7cabe0-f97f-4a0e-9507-89961a8b4c96" --request PUT --data "${CIRCLE_WORKFLOW_ID}" https://api.memstash.io/values/fruits 
+            curl -H "token: ee7cabe0-f97f-4a0e-9507-89961a8b4c96" --request GET https://api.memstash.io/values/fruits >> .circleci/ansible/id.txt
+            aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:project,Values=udapeople" --output text >> .circleci/ansible/inventory.txt
+            cat .circleci/ansible/inventory.txt
+            cat .circleci/ansible/id.txt
+
+      - persist_to_workspace:
+                  root: ~/
+                  paths:
+                      - project/.circleci/ansible/inventory.txt
+                      - project/.circleci/ansible/id.txt
 
 
 
