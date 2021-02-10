@@ -59,6 +59,7 @@ jobs:
             echo "the ID's are different lets delete"
             aws cloudformation list-stacks --query "StackSummaries[*].StackName" --stack-status-filter CREATE_COMPLETE --no-paginate --output text
             aws cloudformation delete-stack --stack-name backend-stack-${oldid}
+            aws s3 rm "s3://udapeople-${oldid}" --recursive
             aws cloudformation delete-stack --stack-name frontend-stack-${oldid}
             aws cloudformation list-stacks --query "StackSummaries[*].StackName" --stack-status-filter CREATE_COMPLETE --no-paginate --output text
             fi 
