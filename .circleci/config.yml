@@ -74,7 +74,6 @@ workflows:
     - deploy-infrastructure
     - testing:
         requires: [deploy-infrastructure]
-    - verifying:
-        requires: [testing]
+
 
 ## ## ## ## ## ## ## ## 
