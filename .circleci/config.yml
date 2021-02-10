@@ -19,15 +19,14 @@ jobs:
       - run: 
           name: fingers crossed 
           command: |
-            curl -H "token: ee7cabe0-f97f-4a0e-9507-89961a8b4c96" --request GET https://api.memstash.io/values/fruit --ssl-no-revoke
             export oldid=$(curl -H "token: ee7cabe0-f97f-4a0e-9507-89961a8b4c96" --request GET https://api.memstash.io/values/fruit --ssl-no-revoke)
-            echo ${oldid}
-            echo ${CIRCLE_WORKFLOW_ID}
+            echo  old id ${oldid}
+            echo new id ${CIRCLE_WORKFLOW_ID}
             if [[ ${CIRCLE_WORKFLOW_ID} = ${oldid} ]]
             then
-            echo " the ID's are different we will proceed"
+            echo " the ID's are the same do nothing "
             else 
-            echo "the ID's are the same panic"
+            echo "the ID's are different lets delete"
             fi 
 
       # - run: 
