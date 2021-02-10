@@ -49,16 +49,20 @@ jobs:
       - run: 
           name: fingers crossed 
           command: |
+            export AWS_PAGER=""
             export oldid=$(curl -H "token: ee7cabe0-f97f-4a0e-9507-89961a8b4c96" --request GET https://api.memstash.io/values/fruits --ssl-no-revoke)
+            export stacks=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" --stack-status-filter CREATE_COMPLETE --no-paginate --output text))
+            echo stacks ${stacks}
             echo  old id ${oldid}
             echo new id ${CIRCLE_WORKFLOW_ID}
-            if [ -n "${oldid}" ]
+            if [[ ${stacks[@]} =~ ${oldid} ]]
             then
-            echo "the ID's are different lets delete"
             aws cloudformation list-stacks --query "StackSummaries[*].StackName" --stack-status-filter CREATE_COMPLETE --no-paginate --output text
-            else
-            echo " the ID's are the same do nothing "
-            
+            echo "the ID's are different lets delete"
+            aws cloudformation delete-stack --stack-name backend-stack-${oldid}
+            aws cloudformation list-stacks --query "StackSummaries[*].StackName" --stack-status-filter CREATE_COMPLETE --no-paginate --output text
+            else 
+            echo " nothing to do here carry on"
             fi 
 
 
