@@ -13,6 +13,7 @@ jobs:
           command: |
             sudo apt-get update
             sudo apt install curl
+            sudo apt install awscli
 
 
 
