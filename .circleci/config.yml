@@ -50,7 +50,7 @@ jobs:
           name: fingers crossed 
           command: |
             export AWS_PAGER=""
-            export oldid=$(curl -H "token: ee7cabe0-f97f-4a0e-9507-89961a8b4c96" --request GET https://api.memstash.io/values/fruits --ssl-no-revoke) --
+            export oldid=$(curl -H "token: ee7cabe0-f97f-4a0e-9507-89961a8b4c96" --request GET https://api.memstash.io/values/fruits --ssl-no-revoke) 
             export stacks=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" --stack-status-filter CREATE_COMPLETE --no-paginate --output text))
             echo stacks ${stacks}
             echo  old id ${oldid}
